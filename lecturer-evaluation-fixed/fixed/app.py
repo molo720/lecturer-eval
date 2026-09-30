@@ -45,8 +45,13 @@ if not app.secret_key:
 app.config['DATABASE'] = DATABASE_PATH
 app.config['WTF_CSRF_TIME_LIMIT'] = None
 app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_NAME'] = 'evalai_session'
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['SESSION_COOKIE_SECURE'] = True
+# Railway terminates TLS at its proxy. The public HTTPS layer can still carry
+# an ordinary cookie; disabling Secure here avoids browsers dropping the cookie
+# when the upstream WSGI request is seen as HTTP.
+app.config['SESSION_COOKIE_SECURE'] = bool(os.environ.get('VERCEL'))
+app.config['SESSION_REFRESH_EACH_REQUEST'] = True
 app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
 
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
