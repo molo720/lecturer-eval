@@ -12,6 +12,7 @@ from flask import (
 )
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 import sys
 import nltk
@@ -47,6 +48,8 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = bool(os.environ.get('VERCEL')) or ON_RAILWAY
 app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
 
 csrf = CSRFProtect(app)
 
