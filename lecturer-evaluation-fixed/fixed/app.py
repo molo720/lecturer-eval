@@ -69,7 +69,13 @@ evaluation_metrics = {}
 @app.before_request
 def trace_login_session():
     if request.path in ('/login', '/staff', '/dashboard'):
-        app.logger.info('SESSION_TRACE path=%s user_id=%s cookie_present=%s', request.path, session.get('user_id'), bool(request.cookies.get('evalai_session')))
+        print('SESSION_TRACE_IN', request.path, 'user_id=', session.get('user_id'), 'cookie=', bool(request.cookies.get('evalai_session')), flush=True)
+
+@app.after_request
+def trace_login_cookie(response):
+    if request.path == '/login':
+        print('SESSION_TRACE_OUT', request.method, 'status=', response.status_code, 'set_cookie=', response.headers.get('Set-Cookie', ''), flush=True)
+    return response
 
 
 def login_required(view):
