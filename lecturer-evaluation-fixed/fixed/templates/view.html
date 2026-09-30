@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Feedback #{{ feedback.id }}{% endblock %}
+{% block extra_css %}
+<style>
+    .meta-bar {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .meta-item { font-size: 13px; color: #64748b; }
+    .meta-item strong { color: #334155; }
+    .aspect-grid { display: grid; gap: 16px; }
+    .aspect-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 20px;
+        border-left: 5px solid #94a3b8;
+        transition: transform 0.2s;
+    }
+    .aspect-card:hover { transform: translateX(4px); }
+    .aspect-card.positive { border-left-color: #10b981; background: linear-gradient(to right, #f0fdf4, #f8fafc); }
+    .aspect-card.neutral { border-left-color: #64748b; background: linear-gradient(to right, #f8fafc, #ffffff); }
+    .aspect-card.negative { border-left-color: #ef4444; background: linear-gradient(to right, #fef2f2, #f8fafc); }
+    .aspect-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .aspect-name { font-weight: 700; font-size: 16px; color: #0f172a; }
+    .badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .badge.positive { background: #d1fae5; color: #065f46; }
+    .badge.neutral { background: #f1f5f9; color: #475569; }
+    .badge.negative { background: #fee2e2; color: #991b1b; }
+    .score-box {
+        text-align: center;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: white;
+        padding: 36px;
+        border-radius: 16px;
+        margin-top: 24px;
+    }
+    .score-label { font-size: 13px; text-transform: uppercase; letter-spacing: 3px; opacity: 0.7; margin-bottom: 10px; }
+    .score-value { font-size: 56px; font-weight: 800; line-height: 1; }
+    .score-scale { font-size: 14px; opacity: 0.5; margin-top: 10px; }
+    .preprocessed {
+        background: #f1f5f9;
+        padding: 14px 18px;
+        border-radius: 10px;
+        font-family: 'SF Mono', 'Courier New', monospace;
+        font-size: 13px;
+        color: #475569;
+        margin-top: 14px;
+        word-break: break-word;
+        border: 1px solid #e2e8f0;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="header">
+    <h1>Feedback Analysis</h1>
+    <p>Detailed view for submission #{{ feedback.id }}</p>
+</div>
+
+<div class="card">
+    <div class="meta-bar">
+        <div class="meta-item"><strong>Lecturer:</strong> {{ feedback.lecturer_name }}</div>
+        <div class="meta-item"><strong>Course:</strong> {{ feedback.course }} {{ feedback.course_code or '' }}</div>
+        <div class="meta-item"><strong>Rating:</strong> {{ feedback.rating }}/5</div>
+        <div class="meta-item"><strong>Date:</strong> {{ feedback.submitted_at }}</div>
+    </div>
+
+    <div style="margin-bottom: 24px;">
+        <div style="font-size: 13px; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Original Comment</div>
+        <div style="font-size: 17px; color: #0f172a; font-style: italic; line-height: 1.6;">"{{ feedback.comment }}"</div>
+        <div class="preprocessed">{{ results.preprocessed }}</div>
+    </div>
+
+    {% if results.aspects %}
+    <div class="aspect-grid">
+        {% for aspect in results.aspects %}
+        <div class="aspect-card {{ aspect.sentiment }}">
+            <div class="aspect-header">
+                <span class="aspect-name">{{ aspect.aspect }}</span>
+                <span class="badge {{ aspect.sentiment }}">{{ aspect.sentiment }}</span>
+            </div>
+            <div style="font-size: 14px; color: #475569; margin-bottom: 10px; line-height: 1.5;">
+                "{{ aspect.span }}"
+            </div>
+            <div style="font-size: 13px; color: #64748b;">
+                Sentiment Score: <strong style="color: #334155;">{{ aspect.sentiment_score }}/5</strong> &nbsp;|&nbsp;
+                Composite: <strong style="color: #0f172a; font-size: 15px;">{{ aspect.composite_score }}</strong>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="score-box">
+        <div class="score-label">Overall Composite Score</div>
+        <div class="score-value">{{ results.overall_cs }}</div>
+        <div class="score-scale">out of 5.0</div>
+    </div>
+    {% else %}
+    <div style="text-align: center; color: #64748b; padding: 48px;">
+        <div style="font-size: 40px; margin-bottom: 12px;">🔍</div>
+        <div style="font-size: 16px; font-weight: 600;">No aspects detected</div>
+        <div style="font-size: 14px; margin-top: 4px;">The comment didn't match any known evaluation aspects.</div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

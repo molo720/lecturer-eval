@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}User & Lecturer Accounts Management{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>Account & Lecturer Management</h1>
+    <p>Administrators can create, manage, and delete lecturer and staff access accounts, or purge lecturer records</p>
+</div>
+
+<!-- CREATE ACCOUNT -->
+<div class="card">
+    {% if error %}
+    <div class="error" style="background: #fef2f2; color: #991b1b; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #ef4444;">
+        {{ error }}
+    </div>
+    {% endif %}
+    <h3 style="margin-bottom: 14px; color: #0f172a; font-size: 18px;">
+        <i class="fas fa-user-plus" style="color: #4f46e5; margin-right: 8px;"></i>Create Lecturer Account
+    </h3>
+    <p style="font-size: 13px; color: #64748b; margin-bottom: 18px;">
+        Provide login credentials for lecturers to access their personal feedback analysis and evaluation reports.
+    </p>
+    <form method="POST">
+        <div class="form-row">
+            <div>
+                <label>Full Name / Lecturer Name *</label>
+                <input type="text" name="lecturer_name" placeholder="e.g. Dr. Okafor" required>
+            </div>
+            <div>
+                <label>Username *</label>
+                <input type="text" name="username" placeholder="e.g. okafor" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Password *</label>
+            <input type="password" name="password" placeholder="Create a secure password" required>
+        </div>
+        <button type="submit" style="width: auto; padding: 12px 24px;">Create Account</button>
+    </form>
+</div>
+
+<!-- EXISTING ACCOUNTS TABLE WITH DELETE -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+        <h3 style="color: #0f172a; font-size: 18px;">
+            <i class="fas fa-users" style="color: #4f46e5; margin-right: 8px;"></i>Existing User Accounts ({{ users|length }})
+        </h3>
+        <span style="font-size: 12px; color: #64748b;">Role-based access enforcement active</span>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Assigned Lecturer</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>
+                    <strong style="color: #0f172a;">{{ u.username }}</strong>
+                    {% if u.id == session.get('user_id') %}
+                    <span style="background: #e0f2fe; color: #0369a1; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">YOU</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if u.role == 'administrator' %}
+                    <span class="badge" style="background: #ede9fe; color: #6d28d9;">Administrator</span>
+                    {% elif u.role == 'lecturer' %}
+                    <span class="badge" style="background: #e0e7ff; color: #3730a3;">Lecturer</span>
+                    {% else %}
+                    <span class="badge" style="background: #f1f5f9; color: #475569;">{{ u.role }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if u.lecturer_name %}
+                    <a href="{{ url_for('lecturer_report', lecturer_name=u.lecturer_name) }}" style="color: #4f46e5; font-weight: 600; text-decoration: none;">
+                        {{ u.lecturer_name }}
+                    </a>
+                    {% else %}
+                    <span style="color: #94a3b8;">— (All Access)</span>
+                    {% endif %}
+                </td>
+                <td style="text-align: right; white-space: nowrap;">
+                    <!-- Change Password for this user -->
+                    <form method="POST" action="{{ url_for('admin_set_user_password', user_id=u.id) }}" style="display: inline-flex; align-items: center; gap: 4px; margin-right: 8px;">
+                        <input type="password" name="new_password" placeholder="New pwd" style="padding: 5px 8px; font-size: 11px; width: 100px; margin: 0; border-radius: 6px;" required minlength="4">
+                        <button type="submit" class="btn-sm" title="Change Password" style="background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; cursor: pointer; padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 600;">
+                            <i class="fas fa-key"></i> Set
+                        </button>
+                    </form>
+
+                    {% if u.id == session.get('user_id') %}
+                    <span style="font-size: 11px; color: #0369a1; font-weight: 600; padding: 4px 8px; background: #e0f2fe; border-radius: 4px;">Active</span>
+                    {% else %}
+                    <form method="POST" action="{{ url_for('admin_delete_user', user_id=u.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete user account \'{{ u.username }}\'{% if u.lecturer_name %} for {{ u.lecturer_name }}{% endif %}? This cannot be undone.');">
+                        {% if u.lecturer_name %}
+                        <label style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #64748b; margin-right: 8px; text-transform: none; letter-spacing: normal; cursor: pointer;">
+                            <input type="checkbox" name="delete_feedback" value="1" style="width: auto; margin: 0;"> +Feedback
+                        </label>
+                        {% endif %}
+                        <button type="submit" class="btn-sm" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; cursor: pointer; padding: 6px 12px; border-radius: 6px; font-weight: 600;">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- PURGE / DELETE LECTURER & EVALUATIONS -->
+<div class="card" style="border: 1px solid #fecaca; background: #fffaf0;">
+    <h3 style="color: #991b1b; font-size: 18px; margin-bottom: 8px;">
+        <i class="fas fa-exclamation-triangle" style="color: #dc2626; margin-right: 8px;"></i>Delete Lecturer & Evaluations
+    </h3>
+    <p style="font-size: 13px; color: #7f1d1d; margin-bottom: 18px; line-height: 1.5;">
+        Permanently remove a lecturer and all their associated student evaluations from the system database. This will remove their user account, comments, and sentiment ratings.
+    </p>
+    <form method="POST" action="{{ url_for('admin_delete_lecturer') }}" onsubmit="return confirm('WARNING: This will permanently delete the selected lecturer and ALL their evaluation data from the database. Are you sure you want to proceed?');">
+        <div style="display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 260px;">
+                <label style="color: #991b1b;">Select Lecturer to Remove</label>
+                <select name="lecturer_name" required style="border-color: #fca5a5;">
+                    <option value="">-- Select Lecturer --</option>
+                    {% for lec in all_lecturers %}
+                    <option value="{{ lec }}">{{ lec }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <button type="submit" style="background: #dc2626; color: white; margin: 0; padding: 13px 22px; width: auto;">
+                    <i class="fas fa-trash" style="margin-right: 6px;"></i> Delete Lecturer & Records
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

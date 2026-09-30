@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Model Evaluation — SVM vs Naive Bayes{% endblock %}
+{% block content %}
+<div class="header">
+    <h1>Classifier comparison</h1>
+    <p>Comparative evaluation of Support Vector Machine and Multinomial Naive Bayes</p>
+</div>
+
+{% if not metrics %}
+<div class="card">
+    <p style="color:#64748b;">No evaluation metrics are available yet. Train the models from this page.</p>
+</div>
+{% else %}
+{% set doc = metrics.get('document_level', {}) %}
+{% set svm = doc.get('svm', {}) %}
+{% set nb = doc.get('naive_bayes', {}) %}
+
+<div class="card">
+    <h3 style="margin-bottom: 14px; color:#0f172a;">Document-level sentiment</h3>
+    <p style="font-size:13px; color:#64748b; margin-bottom:16px;">
+        Majority-class baseline accuracy: <strong>{{ doc.get('majority_baseline_accuracy', '—') }}</strong>
+    </p>
+    <table>
+        <thead>
+            <tr>
+                <th>Model</th>
+                <th>Accuracy</th>
+                <th>Macro Precision</th>
+                <th>Macro Recall</th>
+                <th>Macro F1</th>
+                <th>Weighted F1</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>SVM</strong></td>
+                <td>{{ svm.get('accuracy') }}</td>
+                <td>{{ svm.get('macro_precision') }}</td>
+                <td>{{ svm.get('macro_recall') }}</td>
+                <td>{{ svm.get('macro_f1') }}</td>
+                <td>{{ svm.get('weighted_f1') }}</td>
+            </tr>
+            <tr>
+                <td><strong>Naive Bayes</strong></td>
+                <td>{{ nb.get('accuracy') }}</td>
+                <td>{{ nb.get('macro_precision') }}</td>
+                <td>{{ nb.get('macro_recall') }}</td>
+                <td>{{ nb.get('macro_f1') }}</td>
+                <td>{{ nb.get('weighted_f1') }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: 14px; color:#0f172a;">Aspect-level comparison</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Aspect</th>
+                <th>Samples</th>
+                <th>SVM Acc</th>
+                <th>SVM Macro F1</th>
+                <th>NB Acc</th>
+                <th>NB Macro F1</th>
+                <th>Best</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in metrics.get('aspect_level', []) %}
+            <tr>
+                <td><strong>{{ row.get('Aspect') }}</strong></td>
+                <td>{{ row.get('Samples') }}</td>
+                <td>{{ row.get('SVM_Acc') }}</td>
+                <td>{{ row.get('SVM_Macro_F1') }}</td>
+                <td>{{ row.get('NB_Acc') }}</td>
+                <td>{{ row.get('NB_Macro_F1') }}</td>
+                <td>{{ row.get('Best_Model') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div class="card">
+    <h3 style="margin-bottom: 10px; color:#0f172a;">Retrain models</h3>
+    <p style="font-size:13px; color:#64748b; margin-bottom:12px;">Administrators can retrain SVM and Naive Bayes when new labelled data are available.</p>
+    <form method="POST" action="{{ url_for('admin_retrain') }}">
+        <button type="submit" style="width:auto; padding:12px 20px;">Retrain classifiers</button>
+    </form>
+</div>
+{% endblock %}

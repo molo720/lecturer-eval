@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Upload Evaluation Data{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>FR-01: Ingest Evaluation Data</h1>
+    <p>Upload institutional student evaluation datasets (CSV or Excel format)</p>
+</div>
+
+<div class="card">
+    <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">Evaluation Data Ingestion Layer</h3>
+       
+    </div>
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+
+    {% if success_message %}
+    <div class="success">{{ success_message }}</div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>Select CSV or Excel File (.csv, .xlsx, .xls)</label>
+            <input type="file" name="file" accept=".csv, .xlsx, .xls" required style="padding: 10px;">
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-top: 18px; font-size: 13px; color: #475569;">
+            <strong>Expected Columns:</strong> <code>lecturer_name</code>, <code>course</code>, <code>course_code</code>, <code>rating</code> (1-5), <code>comment</code>
+            <br>
+            <span style="color: #64748b;">(Student identity columns such as name or matric number are optional and strictly anonymized per Section 3.10).</span>
+        </div>
+
+        <button type="submit">Upload and Process Dataset</button>
+    </form>
+</div>
+
+{% if results %}
+<div class="card">
+    <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 16px;">Processed Upload Sample (First {{ results|length }} Records)</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Lecturer</th>
+                <th>Course</th>
+                <th>Rating</th>
+                <th>Document Sentiment</th>
+                <th>Extracted Aspects</th>
+                <th>Comment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in results %}
+            <tr>
+                <td><strong>{{ r.lecturer }}</strong></td>
+                <td>{{ r.course }}</td>
+                <td><span class="badge badge-rating-{{ r.rating }}">{{ r.rating }}/5</span></td>
+                <td>
+                    <span class="badge {% if r.document_sentiment == 'positive' %}badge-rating-4{% elif r.document_sentiment == 'negative' %}badge-rating-1{% else %}badge-rating-3{% endif %}">
+                        {{ r.document_sentiment|capitalize }}
+                    </span>
+                </td>
+                <td>
+                    {% if r.aspects %}
+                        {% for a in r.aspects %}
+                            <span style="display:inline-block; font-size:11px; padding:2px 6px; border-radius:4px; margin:2px; {% if a.sentiment == 'positive' %}background:#dcfce7; color:#15803d;{% elif a.sentiment == 'negative' %}background:#fee2e2; color:#b91c1c;{% else %}background:#f1f5f9; color:#475569;{% endif %}">
+                                {{ a.aspect }}: {{ a.sentiment }}
+                            </span>
+                        {% endfor %}
+                    {% else %}
+                        <span style="color:#94a3b8; font-size:12px;">General</span>
+                    {% endif %}
+                </td>
+                <td><div class="truncate">{{ r.comment }}</div></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

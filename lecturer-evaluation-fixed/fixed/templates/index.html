@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block title %}Analyze Student Comment — ABSA{% endblock %}
+{% block extra_css %}
+<style>
+    .meta-bar {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e2e8f0;
+        align-items: center;
+    }
+    .meta-item { font-size: 13px; color: #64748b; }
+    .meta-item strong { color: #334155; }
+    .aspect-grid { display: grid; gap: 16px; }
+    .aspect-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 20px;
+        border-left: 5px solid #94a3b8;
+        transition: transform 0.2s;
+    }
+    .aspect-card:hover { transform: translateX(4px); }
+    .aspect-card.positive { border-left-color: #10b981; background: linear-gradient(to right, #f0fdf4, #f8fafc); }
+    .aspect-card.neutral { border-left-color: #64748b; background: linear-gradient(to right, #f8fafc, #ffffff); }
+    .aspect-card.negative { border-left-color: #ef4444; background: linear-gradient(to right, #fef2f2, #f8fafc); }
+    
+    .aspect-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .aspect-name { font-weight: 700; font-size: 16px; color: #0f172a; }
+    .badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .badge.positive { background: #d1fae5; color: #065f46; }
+    .badge.neutral { background: #f1f5f9; color: #475569; }
+    .badge.negative { background: #fee2e2; color: #991b1b; }
+    
+    .aspect-detail { font-size: 14px; color: #475569; line-height: 1.6; }
+    .aspect-detail .label { color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 10px; display: block; font-weight: 600; }
+    
+    .score-box {
+        text-align: center;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: white;
+        padding: 32px;
+        border-radius: 16px;
+        margin-top: 24px;
+    }
+    .score-label { font-size: 12px; text-transform: uppercase; letter-spacing: 2.5px; opacity: 0.7; margin-bottom: 8px; }
+    .score-value { font-size: 52px; font-weight: 800; line-height: 1; }
+    .score-scale { font-size: 13px; opacity: 0.5; margin-top: 8px; }
+    .preprocessed {
+        background: #f1f5f9;
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-family: 'SF Mono', 'Courier New', monospace;
+        font-size: 12px;
+        color: #475569;
+        margin-top: 12px;
+        word-break: break-word;
+        border: 1px solid #e2e8f0;
+    }
+    .dimensions-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    .dim-tag {
+        background: #eef2ff;
+        color: #4338ca;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="header">
+    <h1>AI-Based Lecturer Evaluation</h1>
+    <p>Aspect-Level Sentiment Analysis (ABSA) & Composite Reporting</p>
+</div>
+
+<div class="card">
+    <div style="margin-bottom: 20px;">
+        <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">Evaluation Input</h3>
+       
+        <div class="dimensions-list">
+            <span class="dim-tag">Teaching Clarity</span>
+            <span class="dim-tag">Course Organisation</span>
+            <span class="dim-tag">Assessment & Grading</span>
+            <span class="dim-tag">Lecturer Punctuality</span>
+            <span class="dim-tag">Availability</span>
+            <span class="dim-tag">Communication</span>
+            <span class="dim-tag">Student Interaction</span>
+            <span class="dim-tag">Use of Teaching Materials</span>
+        </div>
+    </div>
+
+    <form method="POST">
+        <div class="form-group">
+            <label>Student Open-Ended Comment</label>
+            <textarea name="comment" placeholder="e.g. Explains complex algorithms with superb clarity and always punctual, but continuous assessment grading felt arbitrary and returned late...">{{ prefill.comment }}</textarea>
+        </div>
+        <div class="form-row">
+            <div>
+                <label>Official Rating (1-5)</label>
+                <select name="rating">
+                    <option value="1" {% if prefill.rating == '1' %}selected{% endif %}>1 — Unsatisfactory</option>
+                    <option value="2" {% if prefill.rating == '2' %}selected{% endif %}>2 — Below Average</option>
+                    <option value="3" {% if prefill.rating == '3' %}selected{% endif %}>3 — Average / Moderate</option>
+                    <option value="4" {% if prefill.rating == '4' %}selected{% endif %}>4 — Good</option>
+                    <option value="5" {% if prefill.rating == '5' %}selected{% endif %}>5 — Excellent</option>
+                </select>
+            </div>
+            <div>
+                <label>Lecturer Name</label>
+                 <select name="lecturer_name">
+                <option value="Dr. Okafor">Dr. Okafor</option>
+                <option value="Dr. Adeyemi">Dr. Adeyemi</option>
+                <option value="Prof. Martins">Prof. Martins</option>
+                <option value="Dr. Faith">Dr. Faith</option>
+                <option value="Dr. Pomele">Dr. Pomele</option>
+                <option value="Prof. Balogun">Prof. Balogun</option>
+                <option value="Dr. Chukwu">Dr. Chukwu</option>
+                <option value="Dr. (Mrs) Adeleke">Dr. (Mrs) Adeleke</option>
+            </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label>Course Title</label>
+                <input type="text" name="course" placeholder="e.g. Machine Learning" value="{{ prefill.course }}">
+            </div>
+        </div>
+        <button type="submit">Execute Sentiment Classification</button>
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+    </form>
+</div>
+
+{% if results %}
+<div class="card">
+    <div class="meta-bar">
+        <div class="meta-item"><strong>SET Score:</strong> {{ results.rating }}/5</div>
+        <div class="meta-item"><strong>Lecturer:</strong> {{ results.lecturer or '—' }}</div>
+        <div class="meta-item"><strong>Course:</strong> {{ results.course or '—' }}</div>
+        <div class="meta-item">
+            <strong>Document Polarity:</strong>
+            <span class="badge {{ results.document_sentiment }}">{{ results.document_sentiment }}</span>
+        </div>
+        <div class="meta-item"><strong>Aspects Detected:</strong> {{ results.aspects|length }}</div>
+    </div>
+
+    <div style="margin-bottom: 24px;">
+        <div style="font-size: 12px; color: #64748b; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600;">Analyzed Comment</div>
+        <div style="font-size: 16px; color: #0f172a; font-style: italic; line-height: 1.6;">"{{ results.comment }}"</div>
+       
+    </div>
+
+    <div class="aspect-grid">
+        {% if results.aspects %}
+            {% for aspect in results.aspects %}
+            <div class="aspect-card {{ aspect.sentiment }}">
+                <div class="aspect-header">
+                    <span class="aspect-name">{{ aspect.aspect }}</span>
+                    <span class="badge {{ aspect.sentiment }}">{{ aspect.sentiment }}</span>
+                </div>
+                <div class="aspect-detail">
+                    <span style="color: #475569; font-style: italic;">"{{ aspect.span }}"</span>
+                    <div style="display: flex; gap: 20px; margin-top: 10px;">
+                        <div>
+                            <span class="label" style="margin-top:0;">Sentiment Score</span>
+                            <strong style="color: #334155;">{{ aspect.sentiment_score }}/5</strong>
+                        </div>
+                        <div>
+                            <span class="label" style="margin-top:0;">Composite Indicator</span>
+                            <strong style="font-size: 16px; color: #0f172a;">{{ aspect.composite_score }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="background: #f8fafc; padding: 20px; border-radius: 12px; text-align: center; color: #64748b;">
+                No specific aspect keywords detected in this comment. Evaluated using overall document-level classifier.
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="score-box">
+        <div class="score-label">Overall Composite Indicator </div>
+        <div class="score-value">{{ results.overall_cs }}</div>
+        
+    </div>
+</div>
+{% endif %}
+{% endblock %}

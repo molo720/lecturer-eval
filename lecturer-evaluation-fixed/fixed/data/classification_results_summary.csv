@@ -1,0 +1,9 @@
+Aspect,Samples,SVM_Acc,SVM_Macro_F1,SVM_Weighted_F1,NB_Acc,NB_Macro_F1,NB_Weighted_F1,Best_Model
+Teaching Clarity,406,0.9756,0.9723,0.9752,0.9024,0.8939,0.9017,SVM
+Course Organisation,435,1.0,1.0,1.0,1.0,1.0,1.0,SVM
+Assessment and Grading,408,1.0,1.0,1.0,0.9634,0.965,0.9635,SVM
+Lecturer Punctuality,379,1.0,1.0,1.0,0.9474,0.9387,0.947,SVM
+Availability,397,1.0,1.0,1.0,1.0,1.0,1.0,SVM
+Communication,407,1.0,1.0,1.0,0.9512,0.9538,0.9515,SVM
+Student Interaction,402,1.0,1.0,1.0,1.0,1.0,1.0,SVM
+Use of Teaching Materials,382,1.0,1.0,1.0,0.987,0.9842,0.987,SVM

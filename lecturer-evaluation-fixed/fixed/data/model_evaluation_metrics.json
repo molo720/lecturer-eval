@@ -1,0 +1,153 @@
+{
+  "document_level": {
+    "majority_baseline_accuracy": 0.4031,
+    "svm": {
+      "accuracy": 0.9219,
+      "macro_precision": 0.9133,
+      "macro_recall": 0.9126,
+      "macro_f1": 0.9128,
+      "weighted_f1": 0.922,
+      "confusion_matrix": [
+        [
+          124,
+          5,
+          0
+        ],
+        [
+          8,
+          67,
+          4
+        ],
+        [
+          0,
+          8,
+          104
+        ]
+      ],
+      "classes": [
+        "positive",
+        "neutral",
+        "negative"
+      ]
+    },
+    "naive_bayes": {
+      "accuracy": 0.9,
+      "macro_precision": 0.8888,
+      "macro_recall": 0.8884,
+      "macro_f1": 0.8886,
+      "weighted_f1": 0.9,
+      "confusion_matrix": [
+        [
+          120,
+          9,
+          0
+        ],
+        [
+          10,
+          63,
+          6
+        ],
+        [
+          0,
+          7,
+          105
+        ]
+      ],
+      "classes": [
+        "positive",
+        "neutral",
+        "negative"
+      ]
+    }
+  },
+  "aspect_level": [
+    {
+      "Aspect": "Teaching Clarity",
+      "Samples": 406,
+      "SVM_Acc": 0.9756,
+      "SVM_Macro_F1": 0.9723,
+      "SVM_Weighted_F1": 0.9752,
+      "NB_Acc": 0.9024,
+      "NB_Macro_F1": 0.8939,
+      "NB_Weighted_F1": 0.9017,
+      "Best_Model": "SVM"
+    },
+    {
+      "Aspect": "Course Organisation",
+      "Samples": 435,
+      "SVM_Acc": 1.0,
+      "SVM_Macro_F1": 1.0,
+      "SVM_Weighted_F1": 1.0,
+      "NB_Acc": 1.0,
+      "NB_Macro_F1": 1.0,
+      "NB_Weighted_F1": 1.0,
+      "Best_Model": "SVM"
+    },
+    {
+      "Aspect": "Assessment and Grading",
+      "Samples": 408,
+      "SVM_Acc": 1.0,
+      "SVM_Macro_F1": 1.0,
+      "SVM_Weighted_F1": 1.0,
+      "NB_Acc": 0.9634,
+      "NB_Macro_F1": 0.965,
+      "NB_Weighted_F1": 0.9635,
+      "Best_Model": "SVM"
+    },
+    {
+      "Aspect": "Lecturer Punctuality",
+      "Samples": 379,
+      "SVM_Acc": 1.0,
+      "SVM_Macro_F1": 1.0,
+      "SVM_Weighted_F1": 1.0,
+      "NB_Acc": 0.9474,
+      "NB_Macro_F1": 0.9387,
+      "NB_Weighted_F1": 0.947,
+      "Best_Model": "SVM"
+    },
+    {
+      "Aspect": "Availability",
+      "Samples": 397,
+      "SVM_Acc": 1.0,
+      "SVM_Macro_F1": 1.0,
+      "SVM_Weighted_F1": 1.0,
+      "NB_Acc": 1.0,
+      "NB_Macro_F1": 1.0,
+      "NB_Weighted_F1": 1.0,
+      "Best_Model": "SVM"
+    },
+    {
+      "Aspect": "Communication",
+      "Samples": 407,
+      "SVM_Acc": 1.0,
+      "SVM_Macro_F1": 1.0,
+      "SVM_Weighted_F1": 1.0,
+      "NB_Acc": 0.9512,
+      "NB_Macro_F1": 0.9538,
+      "NB_Weighted_F1": 0.9515,
+      "Best_Model": "SVM"
+    },
+    {
+      "Aspect": "Student Interaction",
+      "Samples": 402,
+      "SVM_Acc": 1.0,
+      "SVM_Macro_F1": 1.0,
+      "SVM_Weighted_F1": 1.0,
+      "NB_Acc": 1.0,
+      "NB_Macro_F1": 1.0,
+      "NB_Weighted_F1": 1.0,
+      "Best_Model": "SVM"
+    },
+    {
+      "Aspect": "Use of Teaching Materials",
+      "Samples": 382,
+      "SVM_Acc": 1.0,
+      "SVM_Macro_F1": 1.0,
+      "SVM_Weighted_F1": 1.0,
+      "NB_Acc": 0.987,
+      "NB_Macro_F1": 0.9842,
+      "NB_Weighted_F1": 0.987,
+      "Best_Model": "SVM"
+    }
+  ]
+}

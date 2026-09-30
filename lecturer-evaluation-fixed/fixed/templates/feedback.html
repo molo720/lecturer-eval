@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}All Feedback{% endblock %}
+{% block title %}All Feedback Records{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>Submitted Feedback</h1>
+    <p>Review all anonymous student evaluations</p>
+    <h1>Submitted Feedback Records</h1>
+    <p>Paginated view of anonymous student evaluation records (Section 3.10 Privacy Compliant)</p>
+</div>
+
+<div class="card">
+    <!-- FILTER & SEARCH BAR WITH DEBOUNCING -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 14px;">
+        <form method="GET" action="{{ url_for('feedback_list') }}" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 0; width: 100%; max-width: 650px;">
+            <div style="flex: 1; min-width: 200px;">
+                <input type="text" name="q" id="searchFilter" value="{{ search_query or '' }}" placeholder="Search comments or courses..." style="margin: 0; padding: 10px 14px;">
+            </div>
+            <div style="min-width: 170px;">
+                <select name="lecturer" style="margin: 0; padding: 10px 14px;" onchange="this.form.submit()">
+                    <option value="">All Lecturers</option>
+                    {% for lec in all_lecturers %}
+                    <option value="{{ lec }}" {% if selected_lecturer == lec %}selected{% endif %}>{{ lec }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" style="width: auto; margin: 0; padding: 10px 18px;">
+                <i class="fas fa-search"></i> Filter
+            </button>
+            {% if search_query or selected_lecturer %}
+            <a href="{{ url_for('feedback_list') }}" class="btn-sm" style="background: #f1f5f9; color: #475569; padding: 10px 14px;">Clear</a>
+            {% endif %}
+        </form>
+
+        <div style="font-size: 13px; color: #64748b; font-weight: 600;">
+            Showing {{ feedbacks|length }} of {{ total_records }} records
+        </div>
+    </div>
+
+    {% if feedbacks %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th style="width: 60px;">ID</th>
+                <th style="width: 130px;">Date</th>
+                <th>Lecturer</th>
+                <th>Course</th>
+                <th>Rating</th>
+                <th style="width: 80px;">Rating</th>
+                <th>Comment</th>
+                <th>Actions</th>
+                <th style="width: 110px;">Sentiment</th>
+                <th style="text-align: right; width: 120px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in feedbacks %}
+            <tr>
+                <td>#{{ f.id }}</td>
+                <td>{{ f.submitted_at }}</td>
+                <td><strong>{{ f.lecturer_name }}</strong></td>
+                <td>{{ f.course }} {{ f.course_code or '' }}</td>
+                <td><span class="badge badge-rating-{{ f.rating }}">{{ f.rating }}/5</span></td>
+                <td><div class="truncate">{{ f.comment }}</div></td>
+                <td><span style="color: #64748b; font-weight: 600;">#{{ f.id }}</span></td>
+                <td style="font-size: 12px; color: #64748b;">{{ f.submitted_at[:10] if f.submitted_at else '—' }}</td>
+                <td><strong style="color: #0f172a;">{{ f.lecturer_name }}</strong></td>
+                <td>{{ f.course }} <span style="font-size: 11px; color: #64748b;">{{ f.course_code or '' }}</span></td>
+                <td>
+                    <a href="{{ url_for('view_feedback', id=f.id) }}" class="btn-sm btn-view">View & Analyze</a>
+                    <span class="badge badge-rating-{{ f.rating }}">
+                        {{ f.rating }} / 5
+                    </span>
+                </td>
+                <td><div class="truncate" title="{{ f.comment }}">{{ f.comment }}</div></td>
+                <td>
+                    {% if f.document_sentiment == 'positive' %}
+                    <span class="badge" style="background: #dcfce7; color: #15803d;">Positive</span>
+                    {% elif f.document_sentiment == 'negative' %}
+                    <span class="badge" style="background: #fee2e2; color: #b91c1c;">Negative</span>
+                    {% else %}
+                    <span class="badge" style="background: #f1f5f9; color: #475569;">Neutral</span>
+                    {% endif %}
+                </td>
+                <td style="text-align: right;">
+                    <a href="{{ url_for('view_feedback', id=f.id) }}" class="btn-sm btn-view">
+                        <i class="fas fa-microscope" style="margin-right: 4px;"></i> Details
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- PAGINATION CONTROLS -->
+    {% if total_pages > 1 %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; flex-wrap: wrap; gap: 12px;">
+        <div style="font-size: 13px; color: #64748b;">
+            Page <strong>{{ current_page }}</strong> of <strong>{{ total_pages }}</strong>
+        </div>
+        <div style="display: flex; gap: 6px; align-items: center;">
+            {% if current_page > 1 %}
+            <a href="{{ url_for('feedback_list', page=current_page - 1, q=search_query, lecturer=selected_lecturer) }}" class="btn-sm" style="background: #ffffff; border: 1px solid #cbd5e1; color: #334155;">
+                <i class="fas fa-chevron-left"></i> Previous
+            </a>
+            {% endif %}
+
+            <span style="font-size: 13px; color: #475569; padding: 0 8px;">
+                {{ current_page }} / {{ total_pages }}
+            </span>
+
+            {% if current_page < total_pages %}
+            <a href="{{ url_for('feedback_list', page=current_page + 1, q=search_query, lecturer=selected_lecturer) }}" class="btn-sm" style="background: #4f46e5; color: white;">
+                Next <i class="fas fa-chevron-right"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div style="text-align: center; color: #64748b; padding: 48px;">
+        <div style="font-size: 48px; margin-bottom: 12px;">📝</div>
+        <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">No feedback yet</div>
+        <div style="font-size: 14px;">Be the first to submit an anonymous evaluation.</div>
+        <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">No evaluation records match your filter</div>
+        <div style="font-size: 14px;">Try clearing filters or search query to see all records.</div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- CLIENT DEBOUNCER HELPER -->
+<script>
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+</script>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Submit Feedback{% endblock %}
+{% block content %}
+<div class="header">
+    <h1>Anonymous Feedback</h1>
+    <p>Submit your lecturer evaluation securely. YOUR IDENTITY IS NEVER RECORDED</p>
+</div>
+
+<div class="card">
+    <form method="POST">
+        <div class="form-row">
+            <div>
+                <label>Lecturer Name *</label>
+                <input type="text" name="lecturer_name" placeholder="e.g. Dr Okafor" required>
+            </div>
+            <div>
+                <label>Course *</label>
+                <input type="text" name="course" placeholder="e.g. Machine Learning" required>
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label>Course Code</label>
+                <input type="text" name="course_code" placeholder="e.g. CSC101">
+            </div>
+            <div>
+                <label>Rating *</label>
+                <select name="rating" required>
+                    <option value="1">1 — Poor</option>
+                    <option value="2">2 — Fair</option>
+                    <option value="3" selected>3 — Average</option>
+                    <option value="4">4 — Good</option>
+                    <option value="5">5 — Excellent</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Comment *</label>
+            <textarea name="comment" placeholder="Share your honest feedback about the lecturer..." required></textarea>
+        </div>
+        <button type="submit">Submit & Analyze</button>
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

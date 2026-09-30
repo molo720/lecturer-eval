@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Landing Page Customizer & Features{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>Landing Page Customizer</h1>
+    <p>Configure student evaluation portal features, announcement banners, and guidance texts</p>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <h3 style="color: #0f172a; font-size: 19px; margin-bottom: 8px;">
+        <i class="fas fa-sliders-h" style="color: #4f46e5; margin-right: 8px;"></i>Portal Landing Configuration
+    </h3>
+    <p style="font-size: 13px; color: #64748b; margin-bottom: 24px;">
+        Updates made here instantly update the student landing page (<a href="{{ url_for('landing') }}" target="_blank" style="color: #4f46e5; font-weight: 600;">View Live Page <i class="fas fa-external-link-alt" style="font-size: 11px;"></i></a>).
+    </p>
+
+    <form method="POST">
+        <!-- ANNOUNCEMENT BANNER -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 22px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <label style="margin: 0; color: #0f172a; font-weight: 700; font-size: 13px;">
+                    <i class="fas fa-bullhorn" style="color: #6366f1; margin-right: 6px;"></i>Announcement Banner
+                </label>
+                <label style="margin: 0; display: inline-flex; align-items: center; gap: 6px; text-transform: none; letter-spacing: normal; cursor: pointer; font-size: 13px; color: #475569;">
+                    <input type="checkbox" name="show_announcement" value="true" {% if settings.show_announcement == 'true' %}checked{% endif %} style="width: auto; margin: 0;">
+                    Enable Banner
+                </label>
+            </div>
+            <input type="text" name="announcement_banner" value="{{ settings.announcement_banner }}" placeholder="e.g. 2025/2026 Academic Session — Anonymous Evaluation Portal Active" style="margin-bottom: 0;">
+        </div>
+
+        <!-- HERO TITLES -->
+        <div class="form-group" style="margin-bottom: 18px;">
+            <label>Landing Page Main Title</label>
+            <input type="text" name="landing_title" value="{{ settings.landing_title }}" placeholder="e.g. Anonymous Lecturer Evaluation" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 18px;">
+            <label>Landing Page Subtitle / Instructions</label>
+            <textarea name="landing_subtitle" style="min-height: 80px;" required>{{ settings.landing_subtitle }}</textarea>
+        </div>
+
+        <!-- PRIVACY & CONFIDENTIALITY NOTICE -->
+        <div class="form-group" style="margin-bottom: 18px;">
+            <label>Privacy & Anonymity Assurance Notice (Section 3.10 Compliance)</label>
+            <textarea name="privacy_notice" style="min-height: 80px;" required>{{ settings.privacy_notice }}</textarea>
+            <span style="font-size: 11px; color: #64748b; margin-top: 4px; display: block;">
+                Displayed in the prominent green confidentiality callout on the student evaluation page.
+            </span>
+        </div>
+
+        <!-- EVALUATION GUIDELINES -->
+        <div class="form-group" style="margin-bottom: 24px;">
+            <label>Student Evaluation Guidelines & Tips</label>
+            <textarea name="custom_guidelines" style="min-height: 80px;">{{ settings.custom_guidelines }}</textarea>
+        </div>
+
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <button type="submit" style="width: auto; padding: 13px 26px;">
+                <i class="fas fa-save" style="margin-right: 6px;"></i>Save Landing Page Settings
+            </button>
+            <a href="{{ url_for('landing') }}" target="_blank" class="btn-sm" style="background: #f1f5f9; color: #334155; padding: 12px 18px; border: 1px solid #cbd5e1;">
+                Preview Landing Page
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}{{ course_name }} — Course Evaluation Report{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    .stat-card {
+        background: white;
+        border-radius: 14px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        border: 1px solid #e2e8f0;
+    }
+    .stat-card .val {
+        font-size: 32px;
+        font-weight: 800;
+        color: #1e293b;
+        margin-top: 4px;
+    }
+    .stat-card .lbl {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #64748b;
+        font-weight: 600;
+    }
+    .aspect-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 12px;
+    }
+    .aspect-table th {
+        background: #f8fafc;
+        color: #475569;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        padding: 12px 14px;
+    }
+    .aspect-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 13px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>Course Evaluation Report</h1>
+    <p>Aggregated feedback and aspect sentiment breakdown for {{ course_name }}</p>
+</div>
+
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="lbl">Total Course Evaluations</div>
+        <div class="val">{{ data.count or 0 }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="lbl">Mean SET Rating</div>
+        <div class="val" style="color: #4f46e5;">{{ data.avg_rating or 0 }} <span style="font-size: 14px; font-weight: normal; color: #64748b;">/ 5.0</span></div>
+    </div>
+    <div class="stat-card">
+        <div class="lbl">Positive Feedback</div>
+        <div class="val" style="color: #16a34a;">{{ data.pos_pct or 0 }}%</div>
+    </div>
+    <div class="stat-card">
+        <div class="lbl">Negative Feedback</div>
+        <div class="val" style="color: #dc2626;">{{ data.neg_pct or 0 }}%</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="section-title" style="font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">
+        Aspect Sentiment Distribution (8 Teaching Dimensions)
+    </div>
+    <table class="aspect-table">
+        <thead>
+            <tr>
+                <th>Teaching Aspect</th>
+                <th>Positive Mentions</th>
+                <th>Neutral Mentions</th>
+                <th>Negative Mentions</th>
+                <th>Net Sentiment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for aspect in data.aspect_order %}
+            {% set counts = data.aspect_counts.get(aspect, {'positive': 0, 'neutral': 0, 'negative': 0}) %}
+            <tr>
+                <td><strong>{{ aspect }}</strong></td>
+                <td style="color: #16a34a; font-weight: 700;">{{ counts.positive }}</td>
+                <td style="color: #64748b; font-weight: 700;">{{ counts.neutral }}</td>
+                <td style="color: #dc2626; font-weight: 700;">{{ counts.negative }}</td>
+                <td>
+                    {% if counts.positive > counts.negative %}
+                        <span class="badge" style="background: #dcfce7; color: #15803d;">Positive</span>
+                    {% elif counts.negative > counts.positive %}
+                        <span class="badge" style="background: #fee2e2; color: #b91c1c;">Negative</span>
+                    {% else %}
+                        <span class="badge" style="background: #f1f5f9; color: #475569;">Neutral</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <div class="section-title" style="font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 14px;">
+        Recent Course Evaluations
+    </div>
+    <table>
+        <thead>
+            <tr><th>Date</th><th>Lecturer</th><th>Rating</th><th>Comment</th></tr>
+        </thead>
+        <tbody>
+            {% for f in feedbacks %}
+            <tr>
+                <td>{{ f.submitted_at }}</td>
+                <td><strong>{{ f.lecturer_name }}</strong></td>
+                <td><span class="badge badge-rating-{{ f.rating }}">{{ f.rating }}/5</span></td>
+                <td><div class="truncate">{{ f.comment }}</div></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
