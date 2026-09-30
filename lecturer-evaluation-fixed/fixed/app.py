@@ -47,11 +47,12 @@ app.config['DATABASE'] = DATABASE_PATH
 app.config['WTF_CSRF_TIME_LIMIT'] = None
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_NAME'] = 'evalai_session'
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-# Railway terminates TLS at its proxy. The public HTTPS layer can still carry
-# an ordinary cookie; disabling Secure here avoids browsers dropping the cookie
-# when the upstream WSGI request is seen as HTTP.
-app.config['SESSION_COOKIE_SECURE'] = bool(os.environ.get('VERCEL'))
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+# Railway serves this app over HTTPS. ProxyFix makes Flask aware of the
+# forwarded HTTPS scheme, so the session cookie must be Secure and can be
+# sent reliably across the Railway proxy redirect.
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_PATH'] = '/'
 app.config['SESSION_REFRESH_EACH_REQUEST'] = True
 app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
 
