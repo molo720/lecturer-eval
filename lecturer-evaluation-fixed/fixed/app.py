@@ -66,6 +66,12 @@ setup_compression(app)
 evaluation_metrics = {}
 
 
+@app.before_request
+def trace_login_session():
+    if request.path in ('/login', '/staff', '/dashboard'):
+        app.logger.info('SESSION_TRACE path=%s user_id=%s cookie_present=%s', request.path, session.get('user_id'), bool(request.cookies.get('evalai_session')))
+
+
 def login_required(view):
     @wraps(view)
     def wrapped(*args, **kwargs):
