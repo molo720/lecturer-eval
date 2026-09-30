@@ -45,7 +45,8 @@ app.config['DATABASE'] = DATABASE_PATH
 app.config['WTF_CSRF_TIME_LIMIT'] = None
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['SESSION_COOKIE_SECURE'] = bool(os.environ.get('VERCEL')) or ON_RAILWAY
+# HTTPS is terminated at the platform edge; the container receives plain HTTP.
+app.config['SESSION_COOKIE_SECURE'] = False
 app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
 
 csrf = CSRFProtect(app)
