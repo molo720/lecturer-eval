@@ -3,6 +3,7 @@ import io
 import csv
 import json
 import time
+from urllib.parse import urlparse
 from collections import defaultdict, deque
 from functools import wraps
 import pandas as pd
@@ -45,8 +46,14 @@ if not app.secret_key:
 app.config['DATABASE'] = DATABASE_PATH
 app.config['WTF_CSRF_TIME_LIMIT'] = None
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['SESSION_COOKIE_SECURE'] = bool(os.environ.get('VERCEL')) or ON_RAILWAY
+app.config['SESSION_COOKIE_NAME'] = 'evalai_session'
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+# Railway serves this app over HTTPS. ProxyFix makes Flask aware of the
+# forwarded HTTPS scheme, so the session cookie must be Secure and can be
+# sent reliably across the Railway proxy redirect.
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_PATH'] = '/'
+app.config['SESSION_REFRESH_EACH_REQUEST'] = True
 app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
 
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
@@ -694,7 +701,10 @@ def login():
             session['user_role'] = user['role']
             session['lecturer_name'] = user['lecturer_name'] or ''
             session['full_name'] = user['full_name'] or user['username']
-            if next_url.startswith('/') and not next_url.startswith('//'):
+            # Never redirect a successful login back to the login page itself.
+            # A stale/invalid `next=/login` value otherwise creates a login loop.
+            next_path = urlparse(next_url).path if next_url else ''
+            if next_path.startswith('/') and next_path not in ('/login', '/logout') and not next_path.startswith('//'):
                 return redirect(next_url)
             return redirect(staff_home_url())
         error = 'Invalid username or password.'
