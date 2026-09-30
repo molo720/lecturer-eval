@@ -3,6 +3,7 @@ import io
 import csv
 import json
 import time
+from urllib.parse import urlparse
 from collections import defaultdict, deque
 from functools import wraps
 import pandas as pd
@@ -699,7 +700,10 @@ def login():
             session['user_role'] = user['role']
             session['lecturer_name'] = user['lecturer_name'] or ''
             session['full_name'] = user['full_name'] or user['username']
-            if next_url.startswith('/') and not next_url.startswith('//'):
+            # Never redirect a successful login back to the login page itself.
+            # A stale/invalid `next=/login` value otherwise creates a login loop.
+            next_path = urlparse(next_url).path if next_url else ''
+            if next_path.startswith('/') and next_path not in ('/login', '/logout') and not next_path.startswith('//'):
                 return redirect(next_url)
             return redirect(staff_home_url())
         error = 'Invalid username or password.'
